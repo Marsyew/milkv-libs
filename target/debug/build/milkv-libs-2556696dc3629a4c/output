@@ -1,0 +1,4 @@
+cargo:rustc-check-cfg=cfg(riscv_mode)
+cargo:DEBUG=milkv-libs build.rs: target_arch=x86_64
+cargo:DEBUG=milkv-libs build.rs: non-riscv target, skipping library setup
+cargo:rerun-if-env-changed=CARGO_CFG_TARGET_ARCH
