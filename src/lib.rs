@@ -52,6 +52,48 @@ extern "C" {
     pub fn tdl_stream_get_drop_count(handle: TDL_RTSP_Handle) -> u64;
 }
 
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_stream_start_encoded(
+    _params: *const TDL_RTSP_Params,
+    _out_handle: *mut TDL_RTSP_Handle,
+) -> c_int {
+    TDL_RTSP_ERR_GENERAL
+}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_rtsp_is_running(_handle: TDL_RTSP_Handle) -> c_int {
+    0
+}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_rtsp_last_error(_handle: TDL_RTSP_Handle) -> *const c_char {
+    b"Not supported on non-riscv platforms\0".as_ptr() as *const c_char
+}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_rtsp_stop(_handle: TDL_RTSP_Handle) {}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_rtsp_destroy(_handle: TDL_RTSP_Handle) {}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_stream_get_frame(
+    _handle: TDL_RTSP_Handle,
+    _buf: *mut u8,
+    _inout_size: *mut u32,
+    _timeout_ms: c_int,
+    _pts: *mut u64,
+    _is_key: *mut c_int,
+) -> c_int {
+    TDL_STREAM_ERR_TIMEOUT
+}
+
+#[cfg(not(riscv_mode))]
+pub unsafe fn tdl_stream_get_drop_count(_handle: TDL_RTSP_Handle) -> u64 {
+    0
+}
+
 pub mod stream {
     use super::*;
     use std::ffi::CStr;

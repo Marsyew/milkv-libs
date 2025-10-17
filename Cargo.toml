@@ -4,3 +4,8 @@ version = "1.0.0"
 edition = "2021"
 description = "MilkV dynamic libraries for RISC-V"
 repository = "https://github.com/Marsyew/milkv-libs"
+
+[dependencies]
+libc = "0.2.177"
+
+
