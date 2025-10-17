@@ -6,6 +6,6 @@ description = "MilkV dynamic libraries for RISC-V"
 repository = "https://github.com/Marsyew/milkv-libs"
 
 [dependencies]
-libc = "0.2.177"
+libc = "0.2.175"
 
 
