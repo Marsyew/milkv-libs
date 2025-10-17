@@ -1,7 +1,6 @@
 [package]
 name = "milkv-libs"
 version = "1.0.0"
-edition = "2021"
+edition = "2025"
 description = "MilkV dynamic libraries for RISC-V"
-license = "MIT"
-
+repository = "https://github.com/Marsyew/milkv-libs"

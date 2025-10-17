@@ -2,46 +2,74 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    println!("cargo:rustc-check-cfg=cfg(riscv_mode)");
     
-    if !target_arch.starts_with("riscv") {
-        return;
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    println!("cargo:DEBUG=milkv-libs build.rs: target_arch={}", target_arch);
+
+    if target_arch.starts_with("riscv") {
+        println!("cargo:DEBUG=milkv-libs build.rs: entering riscv mode");
+        println!("cargo:rustc-cfg=riscv_mode");
+        
+        let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+        let lib_dir = manifest_dir.join("libs");
+
+        if lib_dir.exists() {
+            println!("cargo:info=Setting up library paths for MilkV libraries");
+            
+            println!("cargo:rustc-link-search=native={}", lib_dir.display());
+            
+            println!("cargo:rustc-link-arg=-Wl,-rpath,$ORIGIN/../lib");
+            println!("cargo:rustc-link-arg=-Wl,-rpath,{}", lib_dir.display());
+            
+            link_milkv_libraries();
+        } else {
+            println!("cargo:warning=libs directory not found. Please ensure MilkV libraries are available or enable 'download-libs' feature.");
+        }
+
+        println!("cargo:rerun-if-changed=build.rs");
+        println!("cargo:rerun-if-changed=libs");
+    } else {
+        println!("cargo:DEBUG=milkv-libs build.rs: non-riscv target, skipping library setup");
     }
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let lib_dir = manifest_dir.join("libs");
-
-    if !lib_dir.exists() {
-        panic!("libs directory not found! Please ensure the repository is properly cloned.");
-    }
-
-    println!("cargo:rustc-link-search=native={}", lib_dir.display());
-    println!("cargo:rustc-link-arg=-Wl,-rpath,$ORIGIN/../lib");
-
-    let milkv_libs = [
-        "milkv_stream", "sys", "vi", "vo", "vpss", "gdc", "rgn", "ini",
-        "sns_full", "sample", "sample_rtsp", "isp", "vdec", "venc", 
-        "awb", "ae", "af", "cvi_bin_isp", "cvi_bin", "cvi_rtsp", 
-        "misc", "isp_algo", "cvikernel", "cvimath", "cviruntime", 
-        "cvi_ive"
-    ];
-
-    let opencv_libs = [
-        "opencv_core", "opencv_imgcodecs", "opencv_imgproc"
-    ];
-
-    let other_libs = [
-        "z"  // zlib
-    ];
-
-    for lib in milkv_libs.iter().chain(opencv_libs.iter()).chain(other_libs.iter()) {
-        println!("cargo:rustc-link-lib=dylib={}", lib);
-    }
-
-    // println!("cargo:rustc-link-lib=dylib=stdc++");
-    // println!("cargo:rustc-link-lib=dylib=atomic");
-
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=libs");
+    println!("cargo:rerun-if-env-changed=CARGO_CFG_TARGET_ARCH");
 }
 
+fn link_milkv_libraries() {
+    let libraries = [
+        "milkv_stream",
+        "sys",
+        "vi",
+        "vo", 
+        "vpss",
+        "gdc",
+        "rgn",
+        "ini",
+        "sns_full",
+        "sample",
+        "isp",
+        "vdec",
+        "venc",
+        "awb",
+        "ae",
+        "af",
+        "cvi_bin_isp",
+        "cvi_bin",
+        "z",
+        "cvi_rtsp",
+        "misc",
+        "isp_algo",
+        "cvikernel",
+        "cvimath",
+        "cviruntime",
+        "opencv_core",
+        "opencv_imgcodecs", 
+        "opencv_imgproc",
+        "cvi_ive",
+    ];
+
+    for lib in &libraries {
+        println!("cargo:rustc-link-lib=dylib={}", lib);
+    }
+}
